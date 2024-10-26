@@ -1,5 +1,5 @@
-import { Template } from 'meteor/templating';
-import { ReactiveVar } from 'meteor/reactive-var';
 import "dwt";
+
+Dynamsoft.DWT.ResourcesPath = 'https://unpkg.com/dwt/dist/';
 
 import './main.html';
