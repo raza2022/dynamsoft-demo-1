@@ -41,41 +41,60 @@
 
 <div id="document-container"></div>
 <script type="text/javascript">
-  var selectSources = document.getElementById("sources");
-  var sourceList = [];
-  Dynamsoft.DWT.ProductKey = "DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==";
-  var dwtObject = null;
-  Dynamsoft.DWT.CreateDWTObjectEx({ "WebTwainId": "container" }, (obj) => {
-    dwtObject = obj;
+  try{
+    console.log('**** Dynamsoft Code initialization Start ****')
+    var selectSources = document.getElementById("sources");
+    var sourceList = [];
+    Dynamsoft.DWT.ProductKey = "t01898AUAAGjPzLWN3qGzZofhUKDM4/bL3zWE+AH460e4gHn6pr2YQqtArAb1BJhQf2lUOG8yRi33EGEsf9UstQpVJCcsHmTa55eTFZxa3qlS3okKTr5yigxxGtJtNzFuC+AKjBHQ4zkcAHIg5XIBpnbPDR5AD1AHUC8HeMDjLu6HT7kWSL76z4VuTlZwanlnXiBlnKjg5CunFUgXpJltt3MqEOQv5wTQA/QRwP4juxWIXAF6gN4ADuwsLiyCMzCA";
+    console.log('Dynamosft', Dynamsoft)
 
-    dwtObject.Viewer.bind(document.getElementById("document-container"));
-    dwtObject.Viewer.width = 640;
-    dwtObject.Viewer.height = 640;
-    dwtObject.Viewer.show();
-    onReady();
-  }, (errorString) => {
-    console.log(errorString);
-  });
+    var dwtObject = null;
+    Dynamsoft.DWT.CreateDWTObjectEx({ "WebTwainId": "container" }, (obj) => {
+      dwtObject = obj;
+
+      dwtObject.Viewer.bind(document.getElementById("document-container"));
+      dwtObject.Viewer.width = 640;
+      dwtObject.Viewer.height = 640;
+      dwtObject.Viewer.show();
+      onReady();
+    }, (errorString) => {
+      console.log(errorString);
+    });
+  } catch (error) {
+    console.log("error occured in initialization, ", error)
+    alert(error)
+  }
+  console.log('**** Dynamsoft Code initialization End ****')
+
 
   function onReady() {
-    if (dwtObject != null) {
+    console.log('**** Dynamsoft On Ready running ****', dwtObject)
+    try {
+      // selectSources = document.getElementById("sources");
+      if (dwtObject != null) {
+        console.log('dwtObject ok')
 
-      dwtObject.IfShowUI = false;
-      // https://www.dynamsoft.com/web-twain/docs/info/api/Dynamsoft_Enum.html
-      dwtObject.GetDevicesAsync(Dynamsoft.DWT.EnumDWT_DeviceType.TWAINSCANNER | Dynamsoft.DWT.EnumDWT_DeviceType.TWAINX64SCANNER | Dynamsoft.DWT.EnumDWT_DeviceType.ESCLSCANNER).then((sources) => {
-        sourceList = sources;
+        dwtObject.IfShowUI = false;
+        // https://www.dynamsoft.com/web-twain/docs/info/api/Dynamsoft_Enum.html
+        dwtObject.GetDevicesAsync(Dynamsoft.DWT.EnumDWT_DeviceType.TWAINSCANNER | Dynamsoft.DWT.EnumDWT_DeviceType.TWAINX64SCANNER | Dynamsoft.DWT.EnumDWT_DeviceType.ESCLSCANNER).then((sources) => {
+          console.log('Sources found', sources)
+          sourceList = sources;
 
-        selectSources.options.length = 0;
-        for (let i = 0; i < sources.length; i++) {
-          let option = document.createElement("option");
-          option.text = sources[i].displayName;
-          option.value = i.toString();
-          selectSources.add(option);
-        }
-      });
+          selectSources.options.length = 0;
+          for (let i = 0; i < sources.length; i++) {
+            let option = document.createElement("option");
+            option.text = sources[i].displayName;
+            option.value = i.toString();
+            selectSources.add(option);
+          }
+        });
+      }
+    } catch (error) {
+      console.log("error occured in on Ready function, ", error)
+      alert(error)
     }
-  }
 
+  }
   function removeAll() {
     if (!dwtObject || dwtObject.HowManyImagesInBuffer == 0)
       return;
@@ -98,50 +117,59 @@
   }
 
   function acquireImage() {
-    if (!dwtObject)
+    console.log('**** acquireImage running ****')
+    if (!dwtObject) {
+      console.log("no dwtObject found whyy....")
       return;
-
-    if (selectSources) {
-      var pixelTypeInputs = document.getElementsByName("PixelType");
-      for (var i = 0; i < pixelTypeInputs.length; i++) {
-        if ((pixelTypeInputs[i]).checked) {
-          pixelType = (pixelTypeInputs[i]).value;
-          break;
-        }
-      }
-      dwtObject.SelectDeviceAsync(sourceList[selectSources.selectedIndex]).then(() => {
-
-        return dwtObject.OpenSourceAsync()
-
-      }).then(() => {
-
-        return dwtObject.AcquireImageAsync({
-          IfFeederEnabled: document.getElementById("ADF").checked,
-          PixelType: pixelType,
-          Resolution: parseInt(document.getElementById("Resolution").value),
-          IfDisableSourceAfterAcquire: true
-        })
-
-      }).then(() => {
-
-        if (dwtObject) {
-
-          dwtObject.CloseSource();
-
-        }
-
-      }).catch(
-
-              (e) => {
-
-                console.error(e)
-
-              }
-
-      )
-    } else {
-      alert("No Source Available!");
     }
+
+    try {
+      if (selectSources) {
+        var pixelTypeInputs = document.getElementsByName("PixelType");
+        for (var i = 0; i < pixelTypeInputs.length; i++) {
+          if ((pixelTypeInputs[i]).checked) {
+            pixelType = (pixelTypeInputs[i]).value;
+            break;
+          }
+        }
+        dwtObject.SelectDeviceAsync(sourceList[selectSources.selectedIndex]).then(() => {
+
+          return dwtObject.OpenSourceAsync()
+
+        }).then(() => {
+
+          return dwtObject.AcquireImageAsync({
+            IfFeederEnabled: document.getElementById("ADF").checked,
+            PixelType: pixelType,
+            Resolution: parseInt(document.getElementById("Resolution").value),
+            IfDisableSourceAfterAcquire: true
+          })
+
+        }).then(() => {
+
+          if (dwtObject) {
+
+            dwtObject.CloseSource();
+
+          }
+
+        }).catch(
+
+                (e) => {
+
+                  console.error(e)
+
+                }
+
+        )
+      } else {
+        alert("No Source Available!");
+      }
+    } catch (error) {
+      console.log("error occured in acquireImage, ", error)
+      alert(error)
+    }
+
   }
 
   function downloadDocument() {
